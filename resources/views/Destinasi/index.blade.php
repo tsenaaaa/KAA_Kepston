@@ -169,16 +169,15 @@
         }
         .tiktok-card {
             flex: 0 0 200px;
-            background: white;
-            border-radius: 12px;
+            background: transparent;
+            border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: all 0.3s;
+            box-shadow: none;
+            transition: transform 0.2s ease;
             cursor: pointer;
         }
         .tiktok-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            transform: scale(1.05);
         }
         .tiktok-video-wrapper {
             position: relative;
@@ -296,12 +295,53 @@
             margin-bottom: 12px;
             text-align: center;
         }
+
         .card-description {
             font-size: 13px;
             color: #6b7280;
             line-height: 1.6;
             margin-bottom: 16px;
             flex: 1;
+        }
+        .card-rating {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .rating-stars {
+            display: flex;
+            gap: 2px;
+        }
+        .star {
+            color: #ddd;
+            font-size: 14px;
+        }
+        .star.filled {
+            color: #fbbf24;
+        }
+        .rating-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+        }
+        .card-reviews {
+            margin-bottom: 12px;
+        }
+        .reviews-count {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 4px;
+            text-align: center;
+        }
+        .latest-review {
+            font-size: 13px;
+            color: #4b5563;
+            font-style: italic;
+            margin: 0;
+            text-align: center;
+            line-height: 1.4;
         }
         .card-buttons {
             display: flex;
@@ -411,54 +451,42 @@
             <h2 class="section-title">Rekomendasi ({{ $kategori }}) Sekitar Museum KAA</h2>
         </div>
 
-        <!-- TikTok Videos by Category -->
+        <!-- TikTok Videos -->
         @php
-            $categories = ['kuliner', 'penginapan', 'wisata', 'belanja'];
-            $categoryNames = ['kuliner' => 'Kuliner', 'penginapan' => 'Penginapan', 'wisata' => 'Wisata', 'belanja' => 'Belanja'];
+            $tiktokItems = collect($list)->filter(fn($item) => !empty($item['tiktok']))->values();
         @endphp
-
-        @foreach($categories as $cat)
-            @php
-                $catItems = collect($list)->filter(fn($item) => strtolower($item['category']) === $cat)->values();
-            @endphp
-            @if($catItems->count() > 0)
-                <div class="tiktok-section">
-                    <h3 class="section-title">{{ $categoryNames[$cat] }}</h3>
-                    <div class="tiktok-row">
-                        @foreach($catItems as $item)
-                            <div class="tiktok-card">
-                                <div class="tiktok-video-wrapper">
-                                    @php
-                                        $videoId = null;
-                                        if (preg_match('/\/video\/(\d+)/', $item['tiktok'], $matches)) {
-                                            $videoId = $matches[1];
-                                        }
-                                    @endphp
-                                    @if($videoId)
-                                        <iframe
-                                            src="https://www.tiktok.com/embed/v2/{{ $videoId }}"
-                                            frameborder="0"
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                            allowfullscreen
-                                            class="tiktok-iframe"
-                                        ></iframe>
-                                    @else
-                                        <div class="tiktok-placeholder">
-                                            <span>{{ $item['nama'] }}</span>
-                                        </div>
-                                    @endif
-                                </div>
-                                <div class="tiktok-info">
-                                    <h4 class="tiktok-title">{{ $item['nama'] }}</h4>
-                                    <p class="tiktok-desc">{{ Str::limit($item['deskripsi'], 50) }}</p>
-                                    <a href="{{ route('destinasi.tiktok', $item['id']) }}" class="tiktok-link">Lihat Detail</a>
-                                </div>
+        @if($tiktokItems->count() > 0)
+            <div class="tiktok-section">
+                <h3 class="section-title">Video TikTok Destinasi</h3>
+                <div class="tiktok-row">
+                    @foreach($tiktokItems as $item)
+                        <div class="tiktok-card">
+                            <div class="tiktok-video-wrapper">
+                                @php
+                                    $videoId = null;
+                                    if (preg_match('/\/video\/(\d+)/', $item['tiktok'], $matches)) {
+                                        $videoId = $matches[1];
+                                    }
+                                @endphp
+                                @if($videoId)
+                                    <iframe
+                                        src="https://www.tiktok.com/embed/v2/{{ $videoId }}"
+                                        frameborder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowfullscreen
+                                        class="tiktok-iframe"
+                                    ></iframe>
+                                @else
+                                    <div class="tiktok-placeholder">
+                                        <span>{{ $item['nama'] }}</span>
+                                    </div>
+                                @endif
                             </div>
-                        @endforeach
-                    </div>
+                        </div>
+                    @endforeach
                 </div>
-            @endif
-        @endforeach
+            </div>
+        @endif
 
         <!-- Cards Grid -->
         <div class="cards-grid">
@@ -473,6 +501,27 @@
                     </div>
                     <div class="card-content">
                         <h3 class="card-title">{{ $item['nama'] }}</h3>
+
+                        @if(isset($item['rating']) && $item['rating'] > 0)
+                            <div class="card-rating">
+                                <div class="rating-stars">
+                                    @for($i = 1; $i <= 5; $i++)
+                                        <span class="star {{ $i <= round($item['rating']) ? 'filled' : '' }}">★</span>
+                                    @endfor
+                                </div>
+                                <span class="rating-text">{{ number_format($item['rating'], 1) }}</span>
+                            </div>
+                        @endif
+
+                        @if(isset($item['reviews']) && count($item['reviews']) > 0)
+                            <div class="card-reviews">
+                                <div class="reviews-count">{{ count($item['reviews']) }} ulasan</div>
+                                @if(isset($item['reviews'][0]['text']) && !empty($item['reviews'][0]['text']))
+                                    <p class="latest-review">"{{ Str::limit($item['reviews'][0]['text'], 80) }}"</p>
+                                @endif
+                            </div>
+                        @endif
+
                         <p class="card-description">{{ $item['deskripsi'] }}</p>
                         <div class="card-buttons">
                             <a href="{{ route('destinasi.show', $item['id']) }}" class="btn-primary">Lihat Selengkapnya</a>

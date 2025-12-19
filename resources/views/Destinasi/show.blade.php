@@ -154,12 +154,125 @@
         .btn-tiktok:hover {
             background: #b91c1c;
         }
+        .rating-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding: 16px;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+        .rating-stars {
+            display: flex;
+            gap: 2px;
+        }
+        .star {
+            color: #ddd;
+            font-size: 16px;
+        }
+        .star.filled {
+            color: #fbbf24;
+        }
+        .rating-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+        }
+        .reviews-section {
+            margin-bottom: 24px;
+        }
+        .reviews-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 16px;
+        }
+        .review-item {
+            background: #f9fafb;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        .review-author {
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 4px;
+        }
+        .review-text {
+            color: #4b5563;
+            font-style: italic;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        .review-rating {
+            display: flex;
+            gap: 2px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        .btn-maps {
+            background: #2563eb;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+        .btn-maps:hover {
+            background: #1d4ed8;
+        }
+        .photo-gallery {
+            margin-top: 40px;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 32px;
+        }
+        .gallery-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 20px;
+        }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        .gallery-item {
+            background: #f3f4f6;
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 1;
+        }
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+        .gallery-item img:hover {
+            transform: scale(1.05);
+        }
         @media (max-width: 768px) {
             .content-grid {
                 grid-template-columns: 1fr;
             }
             .image-container {
                 min-height: 300px;
+            }
+            .action-buttons {
+                flex-direction: column;
+            }
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             }
         }
     </style>
@@ -221,6 +334,19 @@
                 </div>
             </div>
         </div>
+
+        @if(isset($data['photos']) && count($data['photos']) > 1)
+            <div class="photo-gallery">
+                <h3 class="gallery-title">Galeri Foto</h3>
+                <div class="gallery-grid">
+                    @foreach(array_slice($data['photos'], 1, 8) as $photo)
+                        <div class="gallery-item">
+                            <img src="{{ $photo['url'] }}" alt="{{ $data['nama'] }}">
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
 
     </div>
 
