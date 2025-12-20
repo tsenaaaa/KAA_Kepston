@@ -25,30 +25,38 @@ class DestinasiController extends BaseController
     private function getData()
     {
         return Cache::remember('destinasi_data', 3600, function () {
-            $data = [];
-
-            foreach ($this->placeIds as $index => $placeId) {
-                $placeData = $this->googlePlacesService->getPlaceDetails($placeId);
-
-                if ($placeData) {
-                    $data[] = [
-                        "id" => $index + 1,
-                        "nama" => $placeData['name'],
-                        "foto" => $placeData['photos'][0]['url'] ?? '/mnt/data/placeholder.jpg',
-                        "deskripsi" => $placeData['address'],
-                        "tiktok" => "", // Will be filled if available
-                        "category" => $this->getCategoryFromName($placeData['name']),
-                        "rating" => $placeData['rating'],
-                        "reviews" => $placeData['reviews'],
-                        "photos" => $placeData['photos']
-                    ];
-                }
-            }
-
-            // Fallback data if API fails
-            if (empty($data)) {
+            // Load JSON data
+            $jsonPath = public_path('data/data_destinasi_final.json');
+            if (!file_exists($jsonPath)) {
                 return $this->getFallbackData();
             }
+
+            $jsonData = json_decode(file_get_contents($jsonPath), true);
+            if (!$jsonData) {
+                return $this->getFallbackData();
+            }
+
+            $data = [];
+            foreach ($jsonData as $item) {
+                $data[] = [
+                    "id" => (int) str_replace('D-', '', $item['id']),
+                    "nama" => $item['nama'],
+                    "foto" => '', // Placeholder, can be added later
+                    "deskripsi" => $item['alamat'] ?: 'Alamat tidak tersedia',
+                    "tiktok" => "", // Empty for now
+                    "category" => strtolower($item['kategori']) ?: 'lainnya',
+                    "rating" => $item['rating'],
+                    "reviews" => [], // Empty array
+                    "photos" => [], // Empty array
+                    "koordinat" => $item['koordinat'], // Add koordinat for map
+                    "label" => $item['label'] // Add label field
+                ];
+            }
+
+            // Sort by rating descending
+            usort($data, function($a, $b) {
+                return $b['rating'] <=> $a['rating'];
+            });
 
             return collect($data);
         });

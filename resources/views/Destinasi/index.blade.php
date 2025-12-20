@@ -5,6 +5,10 @@
     <title>Rekomendasi Destinasi - Museum KAA</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -486,58 +490,86 @@
                     @endforeach
                 </div>
             </div>
+        @else
+            <div class="empty-state">
+                Tidak ada video TikTok tersedia untuk destinasi ini.
+            </div>
         @endif
 
         <!-- Cards Grid -->
-        <div class="cards-grid">
-            @forelse($list as $item)
-                <div class="card">
-                    <div class="card-image">
-                        @if(!empty($item['foto']))
-                            <img src="{{ $item['foto'] }}" alt="{{ $item['nama'] }}">
-                        @else
-                            <span>No Image</span>
-                        @endif
-                    </div>
-                    <div class="card-content">
-                        <h3 class="card-title">{{ $item['nama'] }}</h3>
-
-                        @if(isset($item['rating']) && $item['rating'] > 0)
+        @if($list->count() > 0)
+            <div class="cards-grid">
+                @foreach($list as $item)
+                    <div class="card">
+                        <div class="card-image">
+                            @if($item['foto'])
+                                <img src="{{ $item['foto'] }}" alt="{{ $item['nama'] }}">
+                            @else
+                                <span>No Image</span>
+                            @endif
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title">{{ $item['nama'] }}</h3>
                             <div class="card-rating">
                                 <div class="rating-stars">
-                                    @for($i = 1; $i <= 5; $i++)
-                                        <span class="star {{ $i <= round($item['rating']) ? 'filled' : '' }}">★</span>
-                                    @endfor
+                                    @php
+                                        $rating = $item['rating'];
+                                        for ($i = 1; $i <= 5; $i++) {
+                                            $class = $i <= floor($rating) ? 'filled' : '';
+                                            echo '<span class="star ' . $class . '">★</span>';
+                                        }
+                                    @endphp
                                 </div>
-                                <span class="rating-text">{{ number_format($item['rating'], 1) }}</span>
+                                <span class="rating-text">{{ number_format($rating, 1) }}</span>
                             </div>
-                        @endif
-
-                        @if(isset($item['reviews']) && count($item['reviews']) > 0)
-                            <div class="card-reviews">
-                                <div class="reviews-count">{{ count($item['reviews']) }} ulasan</div>
-                                @if(isset($item['reviews'][0]['text']) && !empty($item['reviews'][0]['text']))
-                                    <p class="latest-review">"{{ Str::limit($item['reviews'][0]['text'], 80) }}"</p>
+                            <p class="card-description">{{ $item['deskripsi'] }}</p>
+                            <div class="card-buttons">
+                                <a href="{{ route('destinasi.show', $item['id']) }}" class="btn-primary">Lihat Detail</a>
+                                @if(!empty($item['tiktok']))
+                                    <a href="{{ route('destinasi.tiktok', $item['id']) }}" class="btn-secondary">Tonton TikTok</a>
                                 @endif
                             </div>
-                        @endif
-
-                        <p class="card-description">{{ $item['deskripsi'] }}</p>
-                        <div class="card-buttons">
-                            <a href="{{ route('destinasi.show', $item['id']) }}" class="btn-primary">Lihat Selengkapnya</a>
-                            <a href="{{ $item['tiktok'] }}" target="_blank" class="btn-secondary"> Video</a>
-
                         </div>
                     </div>
-                </div>
-            @empty
-                <div class="empty-state">
-                    Tidak ada destinasi sesuai filter / pencarian.
-                </div>
-            @endforelse
+                @endforeach
+            </div>
+        @else
+            <div class="empty-state">
+                Tidak ada destinasi ditemukan.
+            </div>
+        @endif
+
+        <!-- Map Section -->
+        <div class="map-section" style="margin-top: 40px;">
+            <h3 class="section-title" style="text-align: center; margin-bottom: 20px;">Peta Lokasi Destinasi</h3>
+            <div id="map" style="height: 400px; width: 100%; border-radius: 8px;"></div>
         </div>
 
     </div>
+
+    <script>
+        var map = L.map('map').setView([-6.92, 107.61], 13); // Bandung center
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        var destinations = @json($list);
+
+        destinations.forEach(function(item) {
+            if (item.koordinat && item.koordinat.lat && item.koordinat.lng && item.koordinat.lat != 0 && item.koordinat.lng != 0) {
+                var marker = L.marker([item.koordinat.lat, item.koordinat.lng]).addTo(map);
+                var popupContent = '<b>' + item.nama + '</b><br>Alamat: ' + item.deskripsi +
+                    '<br><button onclick="ambilRute(' + item.koordinat.lat + ', ' + item.koordinat.lng + ')" style="margin-top: 5px; padding: 5px 10px; background-color: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;">Ambil Rute</button>';
+                marker.bindPopup(popupContent);
+            }
+        });
+
+        function ambilRute(lat, lng) {
+            var url = 'https://www.google.com/maps/dir/?api=1&destination=' + lat + ',' + lng;
+            window.open(url, '_blank');
+        }
+    </script>
 
 </body>
 </html>

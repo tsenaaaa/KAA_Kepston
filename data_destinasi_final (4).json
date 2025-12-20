@@ -1,0 +1,122 @@
+[
+  {
+    "id": "D-001",
+    "nama": "Alun-alun Kota Bandung",
+    "kategori": "Wisata",
+    "rating": 4.8,
+    "koordinat": {
+      "lat": -6.921733637,
+      "lng": 107.6070623
+    },
+    "alamat": "-",
+    "label": "Recommended"
+  },
+  {
+    "id": "D-002",
+    "nama": "Bacang Panas Braga",
+    "kategori": "Kuliner",
+    "rating": 4.4,
+    "koordinat": {
+      "lat": -6.921521936,
+      "lng": 107.6097773
+    },
+    "alamat": "-",
+    "label": "Standard"
+  },
+  {
+    "id": "D-003",
+    "nama": "de Braga by ARTOTEL",
+    "kategori": "Penginapan",
+    "rating": 5.0,
+    "koordinat": {
+      "lat": -6.920191633,
+      "lng": 107.610098
+    },
+    "alamat": "-",
+    "label": "Recommended"
+  },
+  {
+    "id": "D-004",
+    "nama": "Hotel Savoy Homann Bandung",
+    "kategori": "Penginapan",
+    "rating": 4.1,
+    "koordinat": {
+      "lat": -6.921826963,
+      "lng": 107.610456
+    },
+    "alamat": "-",
+    "label": "Standard"
+  },
+  {
+    "id": "D-005",
+    "nama": "Jl. Braga",
+    "kategori": "Wisata",
+    "rating": 4.9,
+    "koordinat": {
+      "lat": -6.919948289,
+      "lng": 107.6051916
+    },
+    "alamat": "-",
+    "label": "Recommended"
+  },
+  {
+    "id": "D-006",
+    "nama": "Mie Naripan",
+    "kategori": "Kuliner",
+    "rating": 3.3,
+    "koordinat": {
+      "lat": -6.921321236,
+      "lng": 107.6178388
+    },
+    "alamat": "-",
+    "label": "Standard"
+  },
+  {
+    "id": "D-007",
+    "nama": "Sate Padang Pak Datuk",
+    "kategori": "Kuliner",
+    "rating": 3.4,
+    "koordinat": {
+      "lat": -6.920598633,
+      "lng": 107.6080637
+    },
+    "alamat": "-",
+    "label": "Standard"
+  },
+  {
+    "id": "D-008",
+    "nama": "TOMORO COFFEE - HQuarter",
+    "kategori": "Kuliner",
+    "rating": 3.7,
+    "koordinat": {
+      "lat": -6.922281683,
+      "lng": 107.6156242
+    },
+    "alamat": "-",
+    "label": "Standard"
+  },
+  {
+    "id": "D-009",
+    "nama": "Warung Kopi Purnama",
+    "kategori": "Kuliner",
+    "rating": 4.8,
+    "koordinat": {
+      "lat": -6.91995894,
+      "lng": 107.6052345
+    },
+    "alamat": "-",
+    "label": "Recommended"
+  },
+  {
+    "id": "D-010",
+    "nama": "Grand Total",
+    "kategori": "",
+    "rating": 4.3,
+    "koordinat": {
+      "lat": 0.0,
+      "lng": 0.0
+    },
+    "alamat": "-",
+    "label": "Standard"
+  }
+]
