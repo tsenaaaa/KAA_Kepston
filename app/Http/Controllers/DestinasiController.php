@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use App\Services\GooglePlacesService;
 use Illuminate\Support\Facades\Cache;
+use App\Models\Destinasi as DestinasiModel;
 
 class DestinasiController extends BaseController
 {
@@ -22,9 +23,13 @@ class DestinasiController extends BaseController
         $this->googlePlacesService = $googlePlacesService;
     }
 
+    // offset to avoid id collision with API-provided items
+    private const DB_ID_OFFSET = 100000;
+
     private function getData()
     {
-        return Cache::remember('destinasi_data', 3600, function () {
+        // Cache only the API-sourced items; merge DB items live so admin additions appear immediately
+        $apiCollection = Cache::remember('destinasi_api_data', 3600, function () {
             $data = [];
 
             foreach ($this->placeIds as $index => $placeId) {
@@ -36,7 +41,7 @@ class DestinasiController extends BaseController
                         "nama" => $placeData['name'],
                         "foto" => $placeData['photos'][0]['url'] ?? '/mnt/data/placeholder.jpg',
                         "deskripsi" => $placeData['address'],
-                        "tiktok" => "", // Will be filled if available
+                        "tiktok" => "",
                         "category" => $this->getCategoryFromName($placeData['name']),
                         "rating" => $placeData['rating'],
                         "reviews" => $placeData['reviews'],
@@ -52,6 +57,23 @@ class DestinasiController extends BaseController
 
             return collect($data);
         });
+
+        // Fetch DB-stored destinasi and normalize to the same structure
+        $dbItems = DestinasiModel::orderBy('created_at', 'desc')->get()->map(function ($model) {
+            return [
+                'id' => self::DB_ID_OFFSET + (int) $model->id,
+                'nama' => $model->nama,
+                'foto' => $model->foto ?: '/storage/placeholder.jpg',
+                'deskripsi' => $model->deskripsi,
+                'tiktok' => $model->tiktok,
+                'category' => $model->kategori ?? 'wisata',
+                'rating' => $model->rating,
+                'reviews' => [],
+                'photos' => []
+            ];
+        });
+
+        return $dbItems->merge($apiCollection)->values();
     }
 
     private function getCategoryFromName($name)
