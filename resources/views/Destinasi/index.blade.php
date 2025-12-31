@@ -418,6 +418,9 @@
                 <a href="#" class="nav-link">Reservasi</a>
                 <a href="#" class="nav-link">Struktur Organisasi</a>
                 <a href="#" class="nav-link">Virtual Museum</a>
+                @auth
+                    <a href="{{ route('admin.destinasi.index') }}" class="nav-link">Admin</a>
+                @endauth
             </div>
         </div>
     </nav>
