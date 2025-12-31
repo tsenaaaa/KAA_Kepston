@@ -27,82 +27,52 @@ class DestinasiController extends BaseController
     private const DB_ID_OFFSET = 100000;
 
     private function getData()
-    {
-        // Cache only the API-sourced items; merge DB items live so admin additions appear immediately
-        $apiCollection = Cache::remember('destinasi_api_data', 3600, function () {
-            $data = [];
+{
+    // API data (cached)
+    $apiCollection = Cache::remember('destinasi_api_data', 3600, function () {
+        $data = [];
 
-            foreach ($this->placeIds as $index => $placeId) {
-                $placeData = $this->googlePlacesService->getPlaceDetails($placeId);
+        foreach ($this->placeIds as $index => $placeId) {
+            $placeData = $this->googlePlacesService->getPlaceDetails($placeId);
 
-                if ($placeData) {
-                    $data[] = [
-                        "id" => $index + 1,
-                        "nama" => $placeData['name'],
-                        "foto" => $placeData['photos'][0]['url'] ?? '/mnt/data/placeholder.jpg',
-                        "deskripsi" => $placeData['address'],
-                        "tiktok" => "",
-                        "category" => $this->getCategoryFromName($placeData['name']),
-                        "rating" => $placeData['rating'],
-                        "reviews" => $placeData['reviews'],
-                        "photos" => $placeData['photos']
-                    ];
-                }
-            }
-
-            // Fallback data if API fails
-            if (empty($data)) {
-                return $this->getFallbackData();
-            }
-
-            $jsonData = json_decode(file_get_contents($jsonPath), true);
-            if (!$jsonData) {
-                return $this->getFallbackData();
-            }
-
-            $data = [];
-            foreach ($jsonData as $item) {
+            if ($placeData) {
                 $data[] = [
-                    "id" => (int) str_replace('D-', '', $item['id']),
-                    "nama" => $item['nama'],
-                    "foto" => '', // Placeholder, can be added later
-                    "deskripsi" => $item['alamat'] ?: 'Alamat tidak tersedia',
-                    "tiktok" => "", // Empty for now
-                    "category" => strtolower($item['kategori']) ?: 'lainnya',
-                    "rating" => $item['rating'],
-                    "reviews" => [], // Empty array
-                    "photos" => [], // Empty array
-                    "koordinat" => $item['koordinat'], // Add koordinat for map
-                    "label" => $item['label'] // Add label field
+                    "id" => $index + 1,
+                    "nama" => $placeData['name'],
+                    "foto" => $placeData['photos'][0]['url'] ?? '/storage/placeholder.jpg',
+                    "deskripsi" => $placeData['address'],
+                    "tiktok" => "",
+                    "category" => $this->getCategoryFromName($placeData['name']),
+                    "rating" => $placeData['rating'] ?? 0,
+                    "reviews" => $placeData['reviews'] ?? [],
+                    "photos" => $placeData['photos'] ?? []
                 ];
             }
+        }
 
-            // Sort by rating descending
-            usort($data, function($a, $b) {
-                return $b['rating'] <=> $a['rating'];
-            });
+        return collect($data)->isEmpty()
+            ? $this->getFallbackData()
+            : collect($data);
+    });
 
-            return collect($data);
-        });
+    // DB data (live)
+    $dbItems = DestinasiModel::latest()->get()->map(function ($model) {
+        return [
+            'id' => self::DB_ID_OFFSET + $model->id,
+            'nama' => $model->nama,
+            'foto' => $model->foto ?: '/storage/placeholder.jpg',
+            'deskripsi' => $model->deskripsi,
+            'tiktok' => $model->tiktok,
+            'category' => $model->kategori ?? 'wisata',
+            'rating' => $model->rating ?? 0,
+            'reviews' => [],
+            'photos' => []
+        ];
+    });
 
-        // Fetch DB-stored destinasi and normalize to the same structure
-        $dbItems = DestinasiModel::orderBy('created_at', 'desc')->get()->map(function ($model) {
-            return [
-                'id' => self::DB_ID_OFFSET + (int) $model->id,
-                'nama' => $model->nama,
-                'foto' => $model->foto ?: '/storage/placeholder.jpg',
-                'deskripsi' => $model->deskripsi,
-                'tiktok' => $model->tiktok,
-                'category' => $model->kategori ?? 'wisata',
-                'rating' => $model->rating,
-                'reviews' => [],
-                'photos' => []
-            ];
-        });
+    return collect($dbItems)->merge(collect($apiCollection))->values();
+}
 
-        return $dbItems->merge($apiCollection)->values();
-git add app/Http/Controllers/DestinasiController.php
-    }
 
     private function getCategoryFromName($name)
     {
