@@ -29,7 +29,16 @@
 
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700">Alamat</label>
-                <input name="alamat" class="mt-1 block w-full rounded border-gray-200" value="{{ old('alamat') }}">
+                <div style="position:relative;">
+                    <input id="alamat" name="alamat" class="mt-1 block w-full rounded border-gray-200" value="{{ old('alamat') }}" autocomplete="off" tabindex="0" style="position:relative;z-index:2000;">
+                    <div id="alamat-suggestions" class="mt-1 bg-white border rounded shadow-sm" style="display:none;position:absolute;left:0;right:0;top:100%;max-height:200px;overflow:auto;z-index:2001;"></div>
+                </div>
+                <input type="hidden" id="latitude" name="latitude" value="{{ old('latitude') }}">
+                <input type="hidden" id="longitude" name="longitude" value="{{ old('longitude') }}">
+                <div class="mt-2">
+                    <button type="button" id="toggle-map" class="mt-2 bg-gray-200 px-3 py-1 rounded">Tampilkan Peta</button>
+                    <div id="map" class="mt-2" style="height:300px;z-index:0;display:none;"></div>
+                </div>
             </div>
 
             <div class="mb-4">
@@ -58,4 +67,181 @@
         </form>
     </div>
 </div>
-@endsection
+        <!-- Leaflet CSS/JS and Nominatim autocomplete script -->
+        <link id="leaflet-css" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+        
+
+        <style>
+            #alamat-suggestions div{padding:8px;cursor:pointer}
+            #alamat-suggestions div:hover{background:#f3f4f6}
+        </style>
+
+        <script>
+            (function(){
+                const defaultLat = @json(old('latitude', -6.2));
+                const defaultLng = @json(old('longitude', 106.816666));
+
+                let map = null;
+                let marker = null;
+                const latInput = document.getElementById('latitude');
+                const lngInput = document.getElementById('longitude');
+                const alamatInput = document.getElementById('alamat');
+                const suggestions = document.getElementById('alamat-suggestions');
+                const toggleMapBtn = document.getElementById('toggle-map');
+
+                    function initMap(){
+                    if(map) return;
+                        map = L.map('map').setView([parseFloat(defaultLat), parseFloat(defaultLng)], 13);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 19,
+                        attribution: '&copy; OpenStreetMap contributors'
+                    }).addTo(map);
+
+                    map.on('click', async function(e){
+                        const {lat,lng} = e.latlng;
+                        setMarker(lat, lng);
+                        try{
+                            const r = await fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat='+lat+'&lon='+lng);
+                            const data = await r.json();
+                            if(data && data.display_name){
+                                alamatInput.value = data.display_name;
+                            }
+                        }catch(err){console.error(err)}
+                    });
+
+                    // if old values exist, show marker
+                    if(latInput.value && lngInput.value){
+                        setMarker(latInput.value, lngInput.value);
+                    }
+                }
+
+                function setMarker(lat,lng){
+                    lat = parseFloat(lat);
+                    lng = parseFloat(lng);
+                    if(!map){
+                        // if map not initialized, show and init
+                        document.getElementById('map').style.display = 'block';
+                        initMap();
+                    }
+                    if(marker) marker.setLatLng([lat,lng]); else marker = L.marker([lat,lng]).addTo(map);
+                    map.setView([lat,lng],15);
+                    latInput.value = lat;
+                    lngInput.value = lng;
+                }
+
+                async function geocodeAddress(q){
+                    if(!q) return null;
+                    try{
+                        const url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=1&q='+encodeURIComponent(q);
+                        const res = await fetch(url, {headers:{'Accept':'application/json'}});
+                        const items = await res.json();
+                        if(items && items.length){
+                            return items[0];
+                        }
+                    }catch(err){ console.error('geocode error', err) }
+                    return null;
+                }
+
+                // search (Nominatim)
+                let timeout = null;
+                alamatInput.addEventListener('input', function(e){
+                    const q = e.target.value.trim();
+                    if(!q){ suggestions.style.display='none'; return; }
+                    clearTimeout(timeout);
+                    timeout = setTimeout(async ()=>{
+                        try{
+                            const url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=5&q='+encodeURIComponent(q);
+                            const res = await fetch(url, {headers:{'Accept':'application/json'}});
+                            const items = await res.json();
+                            suggestions.innerHTML = '';
+                            if(items && items.length){
+                                items.forEach(it=>{
+                                    const div = document.createElement('div');
+                                    div.textContent = it.display_name;
+                                    div.dataset.lat = it.lat;
+                                    div.dataset.lon = it.lon;
+                                    div.addEventListener('click', function(){
+                                        alamatInput.value = this.textContent;
+                                        suggestions.style.display = 'none';
+                                                    setMarker(this.dataset.lat, this.dataset.lon);
+                                                    lastGeocodedValue = this.textContent;
+                                    });
+                                    suggestions.appendChild(div);
+                                });
+                                suggestions.style.display = 'block';
+                            } else {
+                                suggestions.style.display = 'none';
+                            }
+                        }catch(err){
+                            console.error(err);
+                            suggestions.style.display = 'none';
+                        }
+                    }, 300);
+                });
+
+                // hide suggestions when clicking outside
+                document.addEventListener('click', function(e){
+                    if(!document.getElementById('alamat-suggestions').contains(e.target) && e.target !== alamatInput){
+                        suggestions.style.display = 'none';
+                    }
+                });
+
+                // immediate geocode on Enter or on blur (if coords not present)
+                let lastGeocodedValue = '';
+                alamatInput.addEventListener('keydown', async function(e){
+                    if(e.key === 'Enter'){
+                        e.preventDefault();
+                        const q = alamatInput.value.trim();
+                        if(!q) return;
+                        const r = await geocodeAddress(q);
+                        if(r){
+                            alamatInput.value = r.display_name;
+                            setMarker(r.lat, r.lon);
+                            lastGeocodedValue = alamatInput.value;
+                        }
+                    }
+                });
+
+                alamatInput.addEventListener('blur', async function(){
+                    const q = alamatInput.value.trim();
+                    if(!q) return;
+                    if(latInput.value && lngInput.value) return; // already have coords
+                    if(q === lastGeocodedValue) return; // already geocoded
+                    const r = await geocodeAddress(q);
+                    if(r){
+                        alamatInput.value = r.display_name;
+                        setMarker(r.lat, r.lon);
+                        lastGeocodedValue = alamatInput.value;
+                    }
+                });
+
+                // toggle map
+                toggleMapBtn.addEventListener('click', function(){
+                    const mapEl = document.getElementById('map');
+                    if(mapEl.style.display === 'none' || mapEl.style.display === ''){
+                        mapEl.style.display = 'block';
+                        ensureLeafletLoaded().then(()=>{
+                            initMap();
+                            setTimeout(()=>{ if(map) map.invalidateSize(); }, 300);
+                        }).catch(err=>console.error('Leaflet load error', err));
+                        toggleMapBtn.textContent = 'Sembunyikan Peta';
+                    } else {
+                        mapEl.style.display = 'none';
+                        toggleMapBtn.textContent = 'Tampilkan Peta';
+                    }
+                });
+
+                function ensureLeafletLoaded(){
+                    return new Promise((resolve, reject)=>{
+                        if(window.L) return resolve();
+                        // load script dynamically
+                        const script = document.createElement('script');
+                        script.src = 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js';
+                        script.onload = ()=>{ console.log('Leaflet loaded'); resolve(); };
+                        script.onerror = (e)=> reject(e);
+                        document.head.appendChild(script);
+                    });
+                }
+            })();
+        </script>
+    @endsection

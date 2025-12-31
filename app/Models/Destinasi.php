@@ -15,11 +15,18 @@ class Destinasi extends Model
         'foto',
         'tiktok',
         'rating',
+        'latitude',
+        'longitude',
         'meta'
     ];
 
     protected $casts = [
         'meta' => 'array',
         'rating' => 'float'
+    ];
+
+    protected $attributes = [
+        'latitude' => null,
+        'longitude' => null,
     ];
 }

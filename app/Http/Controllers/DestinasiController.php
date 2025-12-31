@@ -62,11 +62,17 @@ class DestinasiController extends BaseController
             'nama' => $model->nama,
             'foto' => $model->foto ?: '/storage/placeholder.jpg',
             'deskripsi' => $model->deskripsi,
+            'alamat' => $model->alamat,
             'tiktok' => $model->tiktok,
             'category' => $model->kategori ?? 'wisata',
             'rating' => $model->rating ?? 0,
             'reviews' => [],
             'photos' => []
+            ,
+            'koordinat' => [
+                'lat' => $model->latitude ? (float) $model->latitude : null,
+                'lng' => $model->longitude ? (float) $model->longitude : null,
+            ]
         ];
     });
 

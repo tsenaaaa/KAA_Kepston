@@ -560,10 +560,13 @@
         var destinations = @json($list);
 
         destinations.forEach(function(item) {
-            if (item.koordinat && item.koordinat.lat && item.koordinat.lng && item.koordinat.lat != 0 && item.koordinat.lng != 0) {
-                var marker = L.marker([item.koordinat.lat, item.koordinat.lng]).addTo(map);
-                var popupContent = '<b>' + item.nama + '</b><br>Alamat: ' + item.deskripsi +
-                    '<br><button onclick="ambilRute(' + item.koordinat.lat + ', ' + item.koordinat.lng + ')" style="margin-top: 5px; padding: 5px 10px; background-color: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;">Ambil Rute</button>';
+            var lat = item.koordinat && item.koordinat.lat ? item.koordinat.lat : null;
+            var lng = item.koordinat && item.koordinat.lng ? item.koordinat.lng : null;
+            if (lat && lng) {
+                var marker = L.marker([lat, lng]).addTo(map);
+                var alamatText = item.alamat || item.deskripsi || '';
+                var popupContent = '<b>' + (item.nama || '') + '</b><br>Alamat: ' + alamatText +
+                    '<br><button onclick="ambilRute(' + lat + ', ' + lng + ')" style="margin-top: 5px; padding: 5px 10px; background-color: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;">Ambil Rute</button>';
                 marker.bindPopup(popupContent);
             }
         });
