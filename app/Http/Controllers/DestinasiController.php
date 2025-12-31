@@ -43,8 +43,9 @@ class DestinasiController extends BaseController
                     "deskripsi" => $placeData['address'],
                     "tiktok" => "",
                     "category" => $this->getCategoryFromName($placeData['name']),
-                    "rating" => $placeData['rating'] ?? 0,
-                    "reviews" => $placeData['reviews'] ?? [],
+                        "rating" => $placeData['rating'] ?? 0,
+                        "reviews" => $placeData['reviews'] ?? [],
+                        "reviews_count" => is_array($placeData['reviews']) ? count($placeData['reviews']) : 0,
                     "photos" => $placeData['photos'] ?? []
                 ];
             }
@@ -66,7 +67,8 @@ class DestinasiController extends BaseController
             'tiktok' => $model->tiktok,
             'category' => $model->kategori ?? 'wisata',
             'rating' => $model->rating ?? 0,
-            'reviews' => [],
+                'reviews' => [],
+                'reviews_count' => is_array($model->meta) && isset($model->meta['reviews_count']) ? intval($model->meta['reviews_count']) : 0,
             'photos' => []
             ,
             'koordinat' => [

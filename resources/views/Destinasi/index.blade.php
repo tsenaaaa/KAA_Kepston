@@ -525,6 +525,10 @@
                                 </div>
                                 <span class="rating-text">{{ number_format($rating, 1) }}</span>
                             </div>
+                            @php
+                                $reviewsCount = $item['reviews_count'] ?? (is_array($item['reviews']) ? count($item['reviews']) : 0);
+                            @endphp
+                            <div class="reviews-count">{{ $reviewsCount }} ulasan</div>
                             <p class="card-description">{{ $item['deskripsi'] }}</p>
                             <div class="card-buttons">
                                 <a href="{{ route('destinasi.show', $item['id']) }}" class="btn-primary">Lihat Detail</a>
@@ -557,7 +561,7 @@
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        var destinations = @json($list);
+        var destinations = <?php echo json_encode($list); ?>;
 
         destinations.forEach(function(item) {
             var lat = item.koordinat && item.koordinat.lat ? item.koordinat.lat : null;
