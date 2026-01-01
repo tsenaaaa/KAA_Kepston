@@ -1,14 +1,13 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <title>Rekomendasi Destinasi - Museum KAA</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="https://cdn.tailwindcss.com"></script>
+@extends('layouts.public')
+
+@section('title', 'Rekomendasi Destinasi - Museum KAA')
+
+@section('head')
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+@endsection
+
+@section('styles')
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -401,30 +400,204 @@
             font-size: 16px;
             width: 100%;
         }
+
+        /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            .main-content {
+                padding: 32px 20px;
+            }
+            .controls-section {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 16px;
+            }
+            .category-select {
+                width: 100%;
+            }
+            .search-form input {
+                width: 100%;
+            }
+            .cards-grid {
+                gap: 20px;
+            }
+            .card {
+                flex: 0 0 280px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .breadcrumb-section {
+                padding: 20px 0;
+            }
+            .breadcrumb-content {
+                padding: 0 20px;
+            }
+            .page-title {
+                font-size: 24px;
+            }
+            .main-content {
+                padding: 24px 16px;
+            }
+            .controls-section {
+                margin-bottom: 32px;
+            }
+            .title-section {
+                margin-bottom: 32px;
+            }
+            .section-title {
+                font-size: 20px;
+            }
+            .tiktok-section .section-title {
+                font-size: 18px;
+            }
+            .tiktok-card {
+                flex: 0 0 180px;
+            }
+            .tiktok-video-wrapper {
+                height: 250px;
+            }
+            .cards-grid {
+                gap: 16px;
+            }
+            .card {
+                flex: 0 0 260px;
+            }
+            .card-content {
+                padding: 16px;
+            }
+            .card-title {
+                font-size: 15px;
+                margin-bottom: 10px;
+            }
+            .card-description {
+                font-size: 12px;
+                margin-bottom: 14px;
+            }
+            .card-buttons {
+                gap: 8px;
+            }
+            .btn-primary,
+            .btn-secondary {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+            .map-section {
+                margin-top: 32px;
+            }
+            .map-section h3 {
+                font-size: 18px;
+                margin-bottom: 16px;
+            }
+            #map {
+                height: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .breadcrumb-section {
+                padding: 16px 0;
+            }
+            .breadcrumb-content {
+                padding: 0 16px;
+            }
+            .breadcrumb {
+                font-size: 12px;
+                margin-bottom: 8px;
+            }
+            .page-title {
+                font-size: 20px;
+            }
+            .main-content {
+                padding: 20px 12px;
+            }
+            .title-section {
+                margin-bottom: 24px;
+            }
+            .section-title {
+                font-size: 18px;
+            }
+            .tiktok-section {
+                margin-bottom: 32px;
+            }
+            .tiktok-section .section-title {
+                font-size: 16px;
+            }
+            .tiktok-card {
+                flex: 0 0 160px;
+            }
+            .tiktok-video-wrapper {
+                height: 200px;
+            }
+            .tiktok-info {
+                padding: 8px;
+            }
+            .tiktok-title {
+                font-size: 13px;
+            }
+            .tiktok-desc {
+                font-size: 11px;
+            }
+            .tiktok-link {
+                font-size: 11px;
+            }
+            .cards-grid {
+                gap: 12px;
+            }
+            .card {
+                flex: 0 0 240px;
+            }
+            .card-image {
+                height: 140px;
+            }
+            .card-content {
+                padding: 12px;
+            }
+            .card-title {
+                font-size: 14px;
+                margin-bottom: 8px;
+            }
+            .card-rating {
+                margin-bottom: 6px;
+            }
+            .rating-stars .star {
+                font-size: 12px;
+            }
+            .rating-text {
+                font-size: 12px;
+            }
+            .card-description {
+                font-size: 11px;
+                margin-bottom: 12px;
+                line-height: 1.5;
+            }
+            .card-buttons {
+                flex-direction: column;
+                gap: 6px;
+            }
+            .btn-primary,
+            .btn-secondary {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            .empty-state {
+                padding: 40px 16px;
+                font-size: 14px;
+            }
+            .map-section {
+                margin-top: 24px;
+            }
+            .map-section h3 {
+                font-size: 16px;
+                margin-bottom: 12px;
+            }
+            #map {
+                height: 250px;
+            }
+        }
     </style>
-</head>
-<body class="bg-gray-50">
+@endsection
 
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="navbar-content">
-            <div class="logo-section">
-                🏛️ Museum KAA
-            </div>
-            <div class="nav-menu">
-                <a href="#" class="nav-link">Beranda</a>
-                <a href="{{ route('destinasi.index') }}" class="nav-link active">Destinasi Sekitar</a>
-                <a href="#" class="nav-link">Berita</a>
-                <a href="#" class="nav-link">Reservasi</a>
-                <a href="#" class="nav-link">Struktur Organisasi</a>
-                <a href="#" class="nav-link">Virtual Museum</a>
-                @auth
-                    <a href="{{ route('admin.destinasi.index') }}" class="nav-link">Admin</a>
-                @endauth
-            </div>
-        </div>
-    </nav>
-
+@section('content')
     <!-- Breadcrumb -->
     <div class="breadcrumb-section">
         <div class="breadcrumb-content">
@@ -442,9 +615,9 @@
         <div class="controls-section">
             <select onchange="if(this.value) window.location.href=this.value" class="category-select">
                 <option value="{{ route('destinasi.index') }}" {{ $kategori === 'Semua' ? 'selected' : '' }}>Semua Kategori</option>
-                <option value="{{ route('destinasi.kategori', 'kuliner') }}" {{ strtolower($kategori) === 'kuliner' ? 'selected' : '' }}>Kuliner</option>
-                <option value="{{ route('destinasi.kategori', 'wisata') }}" {{ strtolower($kategori) === 'wisata' ? 'selected' : '' }}>Wisata</option>
-                <option value="{{ route('destinasi.kategori', 'belanja') }}" {{ strtolower($kategori) === 'belanja' ? 'selected' : '' }}>Belanja</option>
+                <option value="{{ route('destinasi.kategori', 'Culinary') }}" {{ $kategori === 'Culinary' ? 'selected' : '' }}>Culinary</option>
+                <option value="{{ route('destinasi.kategori', 'Tourism') }}" {{ $kategori === 'Tourism' ? 'selected' : '' }}>Tourism</option>
+                <option value="{{ route('destinasi.kategori', 'Shopping') }}" {{ $kategori === 'Shopping' ? 'selected' : '' }}>Shopping</option>
             </select>
 
             <form action="{{ route('destinasi.search') }}" method="GET" class="search-form">
@@ -529,7 +702,7 @@
                             <div class="card-buttons">
                                 <a href="{{ route('destinasi.show', $item['id']) }}" class="btn-primary">Lihat Detail</a>
                                 @if(!empty($item['tiktok']))
-                                    <a href="{{ route('destinasi.tiktok', $item['id']) }}" class="btn-secondary">Tonton TikTok</a>
+                                    <a href="{{ $item['tiktok'] }}" target="_blank" class="btn-secondary">Tonton TikTok</a>
                                 @endif
                             </div>
                         </div>
@@ -551,13 +724,25 @@
     </div>
 
     <script>
-        var map = L.map('map').setView([-6.92, 107.61], 13); // Bandung center
+        var map = L.map('map').setView([-6.92, 107.61], 13); // Museum Konferensi Asia Afrika center
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        var destinations = @json($list);
+        // Special marker for Museum Konferensi Asia Afrika (center)
+        var museumIcon = L.divIcon({
+            className: 'museum-marker',
+            html: '<div style="background-color: #dc2626; width: 30px; height: 30px; border-radius: 50%; border: 4px solid white; box-shadow: 0 4px 8px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px;">🏛️</div>',
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+        });
+
+        var museumMarker = L.marker([-6.92, 107.61], {icon: museumIcon}).addTo(map);
+        museumMarker.bindPopup('<b>🏛️ Museum Konferensi Asia Afrika</b><br><i>Lokasi Pusat / Titik Tengah</i><br><small>Jl. Asia Afrika No.65, Bandung</small><br><button onclick="ambilRute(-6.92, 107.61)" style="margin-top: 8px; padding: 6px 12px; background-color: #dc2626; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">Petunjuk Arah</button>');
+
+        // Markers for other destinations
+        var destinations = <?php echo json_encode($list); ?>;
 
         destinations.forEach(function(item) {
             var lat = item.koordinat && item.koordinat.lat ? item.koordinat.lat : null;
@@ -576,6 +761,4 @@
             window.open(url, '_blank');
         }
     </script>
-
-</body>
-</html>
+@endsection

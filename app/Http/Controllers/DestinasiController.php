@@ -3,147 +3,49 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
-use App\Services\GooglePlacesService;
-use Illuminate\Support\Facades\Cache;
 use App\Models\Destinasi as DestinasiModel;
+use App\Services\TikTokService;
 
 class DestinasiController extends BaseController
 {
-    private $googlePlacesService;
-    private $placeIds = [
-        'ChIJE1wx6yTmaC4R0Rr5BuyFfwk', // Warung Kopi Purnama
-        'ChIJMcIOvp3oaC4RZdAMyaoSdBc', // Alun-alun Kota Bandung
-        'ChIJ_eP3oiXmaC4RF-TYVUiHG1E', // Sate Padang Pak Datuk
-        'ChIJaWgGXSzmaC4RhoPRV3eWoIQ', // Mie Naripan
-        'ChIJHREpHC_maC4RFhuMcU-xCU8'  // Hotel Savoy Homann Bandung
-    ];
+    private TikTokService $tikTokService;
 
-    public function __construct(GooglePlacesService $googlePlacesService)
+    public function __construct(TikTokService $tikTokService)
     {
-        $this->googlePlacesService = $googlePlacesService;
+        $this->tikTokService = $tikTokService;
     }
 
     // offset to avoid id collision with API-provided items
     private const DB_ID_OFFSET = 100000;
 
     private function getData()
-{
-    // API data (cached)
-    $apiCollection = Cache::remember('destinasi_api_data', 3600, function () {
-        $data = [];
-
-        foreach ($this->placeIds as $index => $placeId) {
-            $placeData = $this->googlePlacesService->getPlaceDetails($placeId);
-
-            if ($placeData) {
-                $data[] = [
-                    "id" => $index + 1,
-                    "nama" => $placeData['name'],
-                    "foto" => $placeData['photos'][0]['url'] ?? '/storage/placeholder.jpg',
-                    "deskripsi" => $placeData['address'],
-                    "tiktok" => "",
-                    "category" => $this->getCategoryFromName($placeData['name']),
-                    "rating" => $placeData['rating'] ?? 0,
-                    "reviews" => $placeData['reviews'] ?? [],
-                    "photos" => $placeData['photos'] ?? []
-                ];
-            }
-        }
-
-        return collect($data)->isEmpty()
-            ? $this->getFallbackData()
-            : collect($data);
-    });
-
-    // DB data (live)
-    $dbItems = DestinasiModel::latest()->get()->map(function ($model) {
-        return [
-            'id' => self::DB_ID_OFFSET + $model->id,
-            'nama' => $model->nama,
-            'foto' => $model->foto ?: '/storage/placeholder.jpg',
-            'deskripsi' => $model->deskripsi,
-            'alamat' => $model->alamat,
-            'tiktok' => $model->tiktok,
-            'category' => $model->kategori ?? 'wisata',
-            'rating' => $model->rating ?? 0,
-            'reviews' => [],
-            'photos' => []
-            ,
-            'koordinat' => [
-                'lat' => $model->latitude ? (float) $model->latitude : null,
-                'lng' => $model->longitude ? (float) $model->longitude : null,
-            ]
-        ];
-    });
-
-    return collect($dbItems)->merge(collect($apiCollection))->values();
-}
-
-
-    private function getCategoryFromName($name)
     {
-        $name = strtolower($name);
+        // DB data (live) - only admin-added data
+        $dbItems = DestinasiModel::latest()->get()->map(function ($model) {
+            return [
+                'id' => self::DB_ID_OFFSET + $model->id,
+                'nama' => $model->nama,
+                'foto' => $model->foto,
+                'deskripsi' => $model->deskripsi,
+                'alamat' => $model->alamat,
+                'tiktok' => $model->tiktok,
+                'category' => $model->kategori ?? 'wisata',
+                'rating' => $model->rating ?? 0,
+                'reviews_count' => $model->reviews_count ?? 0,
+                'reviews' => [],
+                'photos' => []
+                ,
+                'koordinat' => [
+                    'lat' => $model->latitude ? (float) $model->latitude : null,
+                    'lng' => $model->longitude ? (float) $model->longitude : null,
+                ]
+            ];
+        });
 
-        if (str_contains($name, 'coffee') || str_contains($name, 'cafe') || str_contains($name, 'warung') || str_contains($name, 'mie')) {
-            return 'kuliner';
-        } elseif (str_contains($name, 'hotel') || str_contains($name, 'artotel')) {
-            return 'penginapan';
-        } elseif (str_contains($name, 'alun-alun') || str_contains($name, 'taman')) {
-            return 'wisata';
-        } else {
-            return 'wisata'; // default
-        }
+        return collect($dbItems)->values();
     }
 
-    private function getFallbackData()
-    {
-        return collect([
-            [
-                "id" => 1,
-                "nama" => "Warung Kopi Pojok KAA",
-                "foto" => "/mnt/data/1359556c-25ae-4ca4-b82b-7f3bfa4ff98b.png",
-                "deskripsi" => "Kuliner dekat Museum KAA dengan harga terjangkau.",
-                "tiktok" => "https://www.tiktok.com/@coidiscover/video/7437154225852894520",
-                "category" => "kuliner",
-                "rating" => 4.5,
-                "reviews" => [],
-                "photos" => []
-            ],
-            [
-                "id" => 2,
-                "nama" => "Cafe Asia Afrika",
-                "foto" => "/mnt/data/2fafb742-f87b-4e63-b0e4-e3726bbe4013.png",
-                "deskripsi" => "Tempat nongkrong cozy dekat Museum KAA.",
-                "tiktok" => "https://www.tiktok.com/@jalanjalanjajananma/video/7542895044546546949",
-                "category" => "penginapan",
-                "rating" => 4.2,
-                "reviews" => [],
-                "photos" => []
-            ],
-            [
-                "id" => 3,
-                "nama" => "Taman Sejarah KAA",
-                "foto" => "/mnt/data/28a83c79-eb9f-4589-bed2-abc9b8c9502d.png",
-                "deskripsi" => "Taman kecil untuk bersantai dan spot foto bersejarah.",
-                "tiktok" => "https://www.tiktok.com/@kitadibandung/video/7393176755684510981",
-                "category" => "wisata",
-                "rating" => 4.0,
-                "reviews" => [],
-                "photos" => []
-            ],
-            [
-                "id" => 4,
-                "nama" => "Belanja di Sekitar KAA",
-                "foto" => "/mnt/data/placeholder.jpg",
-                "deskripsi" => "Tempat belanja menarik di sekitar Museum KAA.",
-                "tiktok" => "https://www.tiktok.com/@nona.eats/video/7503477496512351494",
-                "category" => "belanja",
-                "rating" => 3.8,
-                "reviews" => [],
-                "photos" => []
-            ],
-        ]);
-    }
+
 
     public function index(Request $request)
     {
@@ -159,12 +61,20 @@ class DestinasiController extends BaseController
 
     public function kategori($kategori)
     {
+        $categoryNames = [
+            'Culinary' => 'Culinary',
+            'Tourism' => 'Tourism',
+            'Shopping' => 'Shopping'
+        ];
+
+        $displayName = $categoryNames[$kategori] ?? ucfirst($kategori);
+
         $filtered = $this->getData()
-            ->filter(fn($item) => strtolower($item['category']) === strtolower($kategori))
+            ->filter(fn($item) => $item['category'] === $kategori)
             ->values();
 
         return view('destinasi.index', [
-            'kategori' => ucfirst($kategori),
+            'kategori' => $displayName,
             'list' => $filtered
         ]);
     }
@@ -191,12 +101,20 @@ class DestinasiController extends BaseController
 
         if (!$item) abort(404);
 
-        // Use Google reviews if available, otherwise dummy comments
-        $comments = !empty($item['reviews']) ? $item['reviews'] : [
-            ['user' => 'andi', 'text' => 'Tempatnya asik!'],
-            ['user' => 'sinta', 'text' => 'Makanannya enak dan murah.'],
-            ['user' => 'riko', 'text' => 'Spot foto cakep di sini.']
-        ];
+        // Fetch TikTok comments if TikTok URL exists
+        $comments = [];
+        if (!empty($item['tiktok'])) {
+            $comments = $this->tikTokService->getComments($item['tiktok']);
+        }
+
+        // Fallback to dummy comments if no TikTok comments
+        if (empty($comments)) {
+            $comments = [
+                ['user' => 'andi', 'text' => 'Tempatnya asik!', 'likes' => 15, 'timestamp' => now()->subHours(2)->toISOString()],
+                ['user' => 'sinta', 'text' => 'Makanannya enak dan murah.', 'likes' => 8, 'timestamp' => now()->subHours(4)->toISOString()],
+                ['user' => 'riko', 'text' => 'Spot foto cakep di sini.', 'likes' => 22, 'timestamp' => now()->subHours(6)->toISOString()]
+            ];
+        }
 
         return view('destinasi.show', [
             'data' => $item,
@@ -217,12 +135,20 @@ class DestinasiController extends BaseController
             $videoId = $matches[1];
         }
 
-        // Use Google reviews if available, otherwise dummy comments
-        $comments = !empty($item['reviews']) ? $item['reviews'] : [
-            ['user' => 'andi', 'text' => 'Tempatnya asik!'],
-            ['user' => 'sinta', 'text' => 'Makanannya enak dan murah.'],
-            ['user' => 'riko', 'text' => 'Spot foto cakep di sini.']
-        ];
+        // Fetch TikTok comments
+        $comments = [];
+        if (!empty($tiktokUrl)) {
+            $comments = $this->tikTokService->getComments($tiktokUrl);
+        }
+
+        // Fallback to dummy comments if no TikTok comments
+        if (empty($comments)) {
+            $comments = [
+                ['user' => 'andi', 'text' => 'Tempatnya asik!', 'likes' => 15, 'timestamp' => now()->subHours(2)->toISOString()],
+                ['user' => 'sinta', 'text' => 'Makanannya enak dan murah.', 'likes' => 8, 'timestamp' => now()->subHours(4)->toISOString()],
+                ['user' => 'riko', 'text' => 'Spot foto cakep di sini.', 'likes' => 22, 'timestamp' => now()->subHours(6)->toISOString()]
+            ];
+        }
 
         return view('destinasi.tiktok', [
             'data' => $item,

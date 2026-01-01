@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'parseium' => [
+        'api_key' => env('PARSEIUM_API_KEY', 'sk_79e4c675151c25e3f678ebe9297c3cdb9eb1e5038dd4a57a'),
+    ],
+
 ];

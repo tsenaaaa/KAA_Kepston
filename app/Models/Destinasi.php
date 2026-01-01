@@ -15,6 +15,7 @@ class Destinasi extends Model
         'foto',
         'tiktok',
         'rating',
+        'reviews_count',
         'latitude',
         'longitude',
         'meta'
@@ -22,7 +23,8 @@ class Destinasi extends Model
 
     protected $casts = [
         'meta' => 'array',
-        'rating' => 'float'
+        'rating' => 'float',
+        'reviews_count' => 'integer'
     ];
 
     protected $attributes = [

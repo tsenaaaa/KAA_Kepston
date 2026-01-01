@@ -1,5 +1,65 @@
 @extends('layouts.app')
 
+@section('styles')
+<style>
+    /* Mobile Responsive Styles */
+    @media (max-width: 768px) {
+        .main-content div[style*="max-width:720px"] {
+            padding: 16px;
+            margin: 0 8px;
+        }
+        .text-xl.font-semibold {
+            font-size: 1.25rem;
+        }
+        .mb-4 {
+            margin-bottom: 1rem;
+        }
+        .block.text-sm.font-medium {
+            font-size: 0.875rem;
+        }
+        .mt-1.block.w-full {
+            font-size: 16px; /* Prevent zoom on iOS */
+        }
+        .bg-red-600.text-white.px-4.py-2 {
+            width: 100%;
+            padding: 0.75rem 1rem;
+        }
+        #map {
+            height: 250px !important;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .main-content div[style*="max-width:720px"] {
+            padding: 12px;
+            margin: 0 4px;
+        }
+        .text-xl.font-semibold {
+            font-size: 1.125rem;
+        }
+        .mb-4 {
+            margin-bottom: 0.75rem;
+        }
+        .block.text-sm.font-medium {
+            font-size: 0.8125rem;
+        }
+        .mt-1.block.w-full {
+            padding: 0.5rem;
+        }
+        .bg-red-600.text-white.px-4.py-2 {
+            padding: 0.625rem 0.875rem;
+            font-size: 0.875rem;
+        }
+        #map {
+            height: 200px !important;
+        }
+        .text-gray-500 {
+            font-size: 0.75rem;
+        }
+    }
+</style>
+@endsection
+
 @section('content')
 <div class="main-content">
     <div style="max-width:720px;margin:0 auto;padding:24px;background:white;border-radius:8px;">
@@ -43,7 +103,12 @@
 
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700">Kategori</label>
-                <input name="kategori" class="mt-1 block w-full rounded border-gray-200" value="{{ old('kategori') }}">
+                <select name="kategori" class="mt-1 block w-full rounded border-gray-200" required>
+                    <option value="">Pilih Kategori</option>
+                    <option value="Culinary" {{ old('kategori') === 'Culinary' ? 'selected' : '' }}>Culinary (Resto, Cafe, dll)</option>
+                    <option value="Tourism" {{ old('kategori') === 'Tourism' ? 'selected' : '' }}>Tourism (Museum, Tempat Ibadah, Public Space, Hotel, dll)</option>
+                    <option value="Shopping" {{ old('kategori') === 'Shopping' ? 'selected' : '' }}>Shopping (Pasar, Mall, Swalayan, dll)</option>
+                </select>
             </div>
 
             <div class="mb-4">
@@ -57,8 +122,9 @@
             </div>
 
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700">Rating</label>
-                <input name="rating" class="mt-1 block w-full rounded border-gray-200" value="{{ old('rating') }}">
+                <label class="block text-sm font-medium text-gray-700">Rating & Reviews Count (Upload CSV)</label>
+                <input type="file" name="csv_file" class="mt-1 block w-full" accept=".csv">
+                <small class="text-gray-500">Upload CSV file with columns: title, totalScore, url, reviewsCount to auto-fill rating and reviews count based on name match.</small>
             </div>
 
             <div class="flex justify-end">
@@ -78,8 +144,8 @@
 
         <script>
             (function(){
-                const defaultLat = @json(old('latitude', -6.2));
-                const defaultLng = @json(old('longitude', 106.816666));
+                const defaultLat = <?php echo json_encode(old('latitude', -6.2)); ?>;
+                const defaultLng = <?php echo json_encode(old('longitude', 106.816666)); ?>;
 
                 let map = null;
                 let marker = null;

@@ -1,10 +1,8 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <title>Video TikTok - {{ $data['nama'] }} - Museum KAA</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="https://cdn.tailwindcss.com"></script>
+@extends('layouts.public')
+
+@section('title', 'Video TikTok - ' . $data['nama'] . ' - Museum KAA')
+
+@section('styles')
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -210,36 +208,170 @@
         .comment-form button:hover {
             background: #b91c1c;
         }
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
+            .main-content {
+                padding: 32px 20px;
+            }
+            .breadcrumb-content {
+                padding: 0 20px;
+            }
+            .content-wrapper {
+                padding: 24px;
+            }
             .content-grid {
-                grid-template-columns: 1fr;
+                gap: 24px;
             }
             .video-container,
             .comments-section {
-                height: 400px;
+                height: 450px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .breadcrumb-section {
+                padding: 20px 0;
+            }
+            .breadcrumb-content {
+                padding: 0 20px;
+            }
+            .main-content {
+                padding: 24px 16px;
+            }
+            .category-select {
+                width: 100%;
+                margin-bottom: 24px;
+            }
+            .content-wrapper {
+                padding: 20px;
+            }
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .video-container,
+            .comments-section {
+                height: 350px;
+            }
+            .video-placeholder .title {
+                font-size: 14px;
+            }
+            .video-placeholder .subtitle {
+                font-size: 12px;
+            }
+            .video-footer {
+                padding: 12px;
+            }
+            .btn-tiktok {
+                width: 100%;
+                text-align: center;
+                padding: 12px 16px;
+            }
+            .comments-section {
+                padding: 16px;
+                height: 350px;
+            }
+            .comments-title {
+                font-size: 14px;
+                margin-bottom: 12px;
+            }
+            .comment-item {
+                padding: 10px;
+                margin-bottom: 8px;
+            }
+            .comment-user {
+                font-size: 12px;
+            }
+            .comment-text {
+                font-size: 12px;
+            }
+            .comment-form {
+                gap: 6px;
+            }
+            .comment-form input {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+            .comment-form button {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .breadcrumb-section {
+                padding: 16px 0;
+            }
+            .breadcrumb-content {
+                padding: 0 16px;
+            }
+            .back-link {
+                font-size: 13px;
+                margin-bottom: 12px;
+            }
+            .main-content {
+                padding: 20px 12px;
+            }
+            .category-select {
+                margin-bottom: 20px;
+            }
+            .content-wrapper {
+                padding: 16px;
+            }
+            .content-grid {
+                gap: 16px;
+            }
+            .video-container,
+            .comments-section {
+                height: 280px;
+            }
+            .video-placeholder {
+                gap: 6px;
+            }
+            .video-placeholder .title {
+                font-size: 13px;
+            }
+            .video-placeholder .subtitle {
+                font-size: 11px;
+            }
+            .video-footer {
+                padding: 10px;
+            }
+            .btn-tiktok {
+                padding: 10px 14px;
+                font-size: 13px;
+            }
+            .comments-section {
+                padding: 12px;
+                height: 280px;
+            }
+            .comments-title {
+                font-size: 13px;
+                margin-bottom: 10px;
+            }
+            .comment-item {
+                padding: 8px;
+                margin-bottom: 6px;
+            }
+            .comment-user {
+                font-size: 11px;
+                margin-bottom: 2px;
+            }
+            .comment-text {
+                font-size: 11px;
+            }
+            .comment-form input {
+                padding: 6px 8px;
+                font-size: 11px;
+            }
+            .comment-form button {
+                padding: 6px 8px;
+                font-size: 11px;
             }
         }
     </style>
-</head>
-<body class="bg-gray-50">
+@endsection
 
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="navbar-content">
-            <div class="logo-section">
-                🏛️ Museum KAA
-            </div>
-            <div class="nav-menu">
-                <a href="#" class="nav-link">Beranda</a>
-                <a href="#" class="nav-link active">Museum KAA</a>
-                <a href="#" class="nav-link">Berita</a>
-                <a href="#" class="nav-link">Reservasi</a>
-                <a href="#" class="nav-link">Struktur Organisasi</a>
-                <a href="#" class="nav-link">Virtual Museum</a>
-            </div>
-        </div>
-    </nav>
-
+@section('content')
     <!-- Breadcrumb -->
     <div class="breadcrumb-section">
         <div class="breadcrumb-content">
@@ -251,9 +383,9 @@
     <div class="main-content">
 
         <select class="category-select">
-            <option>Kuliner</option>
-            <option>Wisata</option>
-            <option>Belanja</option>
+            <option>Culinary</option>
+            <option>Tourism</option>
+            <option>Shopping</option>
         </select>
 
         <div class="content-wrapper">
@@ -281,14 +413,21 @@
 
                 <!-- Comments Section -->
                 <div class="comments-section">
-                    <h3 class="comments-title">Komentar</h3>
+                    <h3 class="comments-title">Komentar ({{ count($comments) }} komentar)</h3>
                     <div class="comments-list">
-                        @foreach($comments as $c)
+                        @if(empty($comments))
                             <div class="comment-item">
-                                <div class="comment-user">{{ $c['user'] }}</div>
-                                <div class="comment-text">{{ $c['text'] }}</div>
+                                <div class="comment-user">System</div>
+                                <div class="comment-text">Memuat komentar...</div>
                             </div>
-                        @endforeach
+                        @else
+                            @foreach($comments as $c)
+                                <div class="comment-item">
+                                    <div class="comment-user">{{ is_string($c['user'] ?? null) ? $c['user'] : '@user' . rand(100, 999) }}</div>
+                                    <div class="comment-text">{{ is_string($c['text'] ?? null) ? $c['text'] : 'Komentar tidak tersedia' }}</div>
+                                </div>
+                            @endforeach
+                        @endif
                     </div>
                     <form class="comment-form">
                         <input type="text" placeholder="Tulis komentar..." readonly>
@@ -299,6 +438,4 @@
         </div>
 
     </div>
-
-</body>
-</html>
+@endsection

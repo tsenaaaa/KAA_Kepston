@@ -1,10 +1,8 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ $data['nama'] }} - Museum KAA</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="https://cdn.tailwindcss.com"></script>
+@extends('layouts.public')
+
+@section('title', $data['nama'] . ' - Museum KAA')
+
+@section('styles')
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -179,6 +177,10 @@
             font-weight: 600;
             color: #374151;
         }
+        .reviews-count {
+            font-size: 12px;
+            color: #6b7280;
+        }
         .reviews-section {
             margin-bottom: 24px;
         }
@@ -261,41 +263,196 @@
         .gallery-item img:hover {
             transform: scale(1.05);
         }
+        @media (max-width: 1024px) {
+            .main-content {
+                padding: 32px 20px;
+            }
+            .breadcrumb-content {
+                padding: 0 20px;
+            }
+            .content-wrapper {
+                padding: 24px;
+            }
+            .content-grid {
+                gap: 24px;
+            }
+        }
+
         @media (max-width: 768px) {
+            .breadcrumb-section {
+                padding: 20px 0;
+            }
+            .breadcrumb-content {
+                padding: 0 20px;
+            }
+            .main-content {
+                padding: 24px 16px;
+            }
+            .page-title {
+                font-size: 24px;
+            }
+            .content-wrapper {
+                padding: 20px;
+            }
             .content-grid {
                 grid-template-columns: 1fr;
+                gap: 20px;
             }
             .image-container {
-                min-height: 300px;
+                min-height: 250px;
+            }
+            .description-text {
+                font-size: 14px;
+                margin-bottom: 24px;
+            }
+            .rating-section {
+                padding: 12px;
+                margin-bottom: 20px;
+            }
+            .rating-stars .star {
+                font-size: 14px;
+            }
+            .rating-text {
+                font-size: 13px;
+            }
+            .reviews-count {
+                font-size: 11px;
+            }
+            .tiktok-comments-card {
+                max-height: 250px !important;
+                padding: 12px !important;
+            }
+            .tiktok-comments-card h4 {
+                font-size: 14px !important;
+                margin-bottom: 8px !important;
+            }
+            .comment-item {
+                padding: 8px !important;
+            }
+            .comment-user {
+                font-size: 13px !important;
+            }
+            .comment-text {
+                font-size: 13px !important;
+            }
+            .btn-tiktok {
+                padding: 10px 20px;
+                font-size: 13px;
             }
             .action-buttons {
                 flex-direction: column;
+                gap: 8px;
+            }
+            .photo-gallery {
+                margin-top: 32px;
+                padding-top: 24px;
+            }
+            .gallery-title {
+                font-size: 18px;
+                margin-bottom: 16px;
             }
             .gallery-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .breadcrumb-section {
+                padding: 16px 0;
+            }
+            .breadcrumb-content {
+                padding: 0 16px;
+            }
+            .back-link {
+                font-size: 13px;
+                margin-bottom: 12px;
+            }
+            .main-content {
+                padding: 20px 12px;
+            }
+            .category-select {
+                width: 100%;
+                margin-bottom: 24px;
+            }
+            .title-section {
+                margin-bottom: 24px;
+            }
+            .page-title {
+                font-size: 20px;
+            }
+            .content-wrapper {
+                padding: 16px;
+            }
+            .content-grid {
+                gap: 16px;
+            }
+            .image-container {
+                min-height: 200px;
+            }
+            .description-text {
+                font-size: 13px;
+                margin-bottom: 20px;
+                line-height: 1.6;
+            }
+            .rating-section {
+                padding: 10px;
+                margin-bottom: 16px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .rating-stars .star {
+                font-size: 13px;
+            }
+            .rating-text {
+                font-size: 12px;
+            }
+            .reviews-count {
+                font-size: 10px;
+            }
+            .tiktok-comments-card {
+                max-height: 200px !important;
+                padding: 10px !important;
+                margin-bottom: 20px !important;
+            }
+            .tiktok-comments-card h4 {
+                font-size: 13px !important;
+                margin-bottom: 6px !important;
+            }
+            .comment-item {
+                padding: 6px !important;
+            }
+            .comment-user {
+                font-size: 12px !important;
+                margin-bottom: 2px !important;
+            }
+            .comment-text {
+                font-size: 12px !important;
+            }
+            .btn-tiktok {
+                width: 100%;
+                text-align: center;
+                padding: 12px 16px;
+                font-size: 13px;
+            }
+            .photo-gallery {
+                margin-top: 24px;
+                padding-top: 20px;
+            }
+            .gallery-title {
+                font-size: 16px;
+                margin-bottom: 12px;
+            }
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 8px;
             }
         }
     </style>
-</head>
-<body class="bg-gray-50">
+@endsection
 
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="navbar-content">
-            <div class="logo-section">
-                🏛️ Museum KAA
-            </div>
-            <div class="nav-menu">
-                <a href="#" class="nav-link">Beranda</a>
-                <a href="#" class="nav-link active">Museum KAA</a>
-                <a href="#" class="nav-link">Berita</a>
-                <a href="#" class="nav-link">Reservasi</a>
-                <a href="#" class="nav-link">Struktur Organisasi</a>
-                <a href="#" class="nav-link">Virtual Museum</a>
-            </div>
-        </div>
-    </nav>
-
+@section('content')
     <!-- Breadcrumb -->
     <div class="breadcrumb-section">
         <div class="breadcrumb-content">
@@ -307,9 +464,9 @@
     <div class="main-content">
 
         <select class="category-select">
-            <option>Kuliner</option>
-            <option>Wisata</option>
-            <option>Belanja</option>
+            <option>Culinary</option>
+            <option>Tourism</option>
+            <option>Shopping</option>
         </select>
 
         <div class="title-section">
@@ -330,7 +487,49 @@
                 <!-- Description -->
                 <div class="description-section">
                     <p class="description-text">{{ $data['deskripsi'] }}</p>
-                    <a href="{{ $data['tiktok'] }}" target="_blank" class="btn-tiktok">Lihat di TikTok</a>
+
+                    @if($data['rating'])
+                        <div class="rating-section">
+                            <div class="rating-stars">
+                                @php
+                                    $rating = $data['rating'];
+                                    for ($i = 1; $i <= 5; $i++) {
+                                        $class = $i <= floor($rating) ? 'filled' : '';
+                                        echo '<span class="star ' . $class . '">★</span>';
+                                    }
+                                @endphp
+                            </div>
+                            <span class="rating-text">{{ number_format($rating, 1) }}</span>
+                            @if($data['reviews_count'])
+                                <span class="reviews-count">({{ number_format($data['reviews_count']) }} reviews)</span>
+                            @endif
+                        </div>
+                    @endif
+
+                    <!-- TikTok Comments Card -->
+                    @if(!empty($comments))
+                        <div class="tiktok-comments-card" style="background: #f9fafb; border-radius: 8px; padding: 16px; margin-bottom: 24px; max-height: 300px; overflow-y: auto;">
+                            <h4 style="font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 12px;">Komentar TikTok ({{ count($comments) }})</h4>
+                            <div class="comments-list" style="display: flex; flex-direction: column; gap: 12px;">
+                                @foreach($comments as $comment)
+                                    <div class="comment-item" style="background: white; padding: 12px; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                                        <div class="comment-user" style="font-weight: 600; font-size: 14px; color: #111827; margin-bottom: 4px;">{{ is_string($comment['user'] ?? null) ? $comment['user'] : '@user' . rand(100, 999) }}</div>
+                                        <div class="comment-text" style="font-size: 14px; color: #4b5563;">{{ is_string($comment['text'] ?? null) ? $comment['text'] : 'Komentar tidak tersedia' }}</div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        @if(!empty($data['tiktok']))
+                            <a href="{{ $data['tiktok'] }}" target="_blank" class="btn-tiktok">Lihat di TikTok</a>
+                        @endif
+
+                        @if(!empty($data['koordinat']['lat']) && !empty($data['koordinat']['lng']))
+                            <a href="https://www.google.com/maps/search/?api=1&query={{ urlencode($data['nama']) }}" target="_blank" class="btn-tiktok" style="background: #4285f4;">Lihat di Google Maps</a>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
@@ -349,6 +548,4 @@
         @endif
 
     </div>
-
-</body>
-</html>
+@endsection

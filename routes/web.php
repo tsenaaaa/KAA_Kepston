@@ -5,7 +5,7 @@ use App\Http\Controllers\Admin\DestinasiController as AdminDestinasiController;
 use App\Http\Controllers\Auth\AuthController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('destinasi.index');
 });
 
 // AUTH routes

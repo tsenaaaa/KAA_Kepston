@@ -1,10 +1,11 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin - @yield('title', 'KAA')</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@yield('title', 'Museum KAA')</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    @yield('head')
     <style>
         * {
             margin: 0;
@@ -66,7 +67,12 @@
         .logo img {
             height: 50px;
             width: auto;
-            max-height: 50px;
+        }
+
+        .logo-text {
+            font-size: 13px;
+            line-height: 1.2;
+            color: #333;
         }
 
         .nav-menu {
@@ -90,6 +96,43 @@
         .nav-menu li a:hover {
             background: #2563eb;
             color: #fff;
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            min-width: 200px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            z-index: 1000;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-content a {
+            display: block;
+            padding: 12px 16px;
+            color: #333;
+            text-decoration: none;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f8fafc;
+            color: #2563eb;
+        }
+
+        .dropdown-content a:last-child {
+            border-bottom: none;
         }
 
         .right-menu {
@@ -266,46 +309,38 @@
             height: 32px;
         }
 
-        .sidebar-user-info {
-            margin-bottom: 16px;
-        }
-
-        .sidebar-user-name {
+        .sidebar-admin-link {
             display: block;
-            font-size: 16px;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 8px;
-        }
-
-        .sidebar-logout-btn {
+            padding: 8px 12px;
+            text-align: center;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 13px;
             background: #dc2626;
             color: white;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            width: 100%;
+            margin-bottom: 12px;
             transition: background 0.3s;
         }
 
-        .sidebar-logout-btn:hover {
+        .sidebar-admin-link:hover {
             background: #b91c1c;
         }
 
         .sidebar-login-link {
             display: block;
-            padding: 12px 16px;
+            padding: 8px 12px;
             text-align: center;
-            background: #f3f4f6;
-            color: #374151;
-            border-radius: 6px;
+            border-radius: 4px;
             text-decoration: none;
             font-weight: 500;
-            font-size: 14px;
+            font-size: 13px;
             transition: background 0.3s;
+        }
+
+        .sidebar-login-link {
+            background: #f3f4f6;
+            color: #374151;
         }
 
         .sidebar-login-link:hover {
@@ -331,10 +366,8 @@
             visibility: visible;
         }
 
+        /* Responsive */
         @media (max-width: 1024px) {
-            .navbar-desktop {
-                padding: 0 32px;
-            }
             .navbar-desktop .nav-menu {
                 gap: 4px;
             }
@@ -359,7 +392,7 @@
                 height: 56px;
             }
             .navbar-mobile .logo img {
-                height: 36px;
+                height: 40px;
             }
             .navbar-mobile .hamburger-menu {
                 width: 24px;
@@ -371,8 +404,11 @@
             }
         }
     </style>
+    @yield('styles')
 </head>
 <body class="bg-gray-50">
+
+    <!-- Navbar -->
     <!-- Desktop Navbar -->
     <nav class="navbar-desktop">
         <div class="logo">
@@ -402,11 +438,7 @@
             <img class="flag" src="https://flagcdn.com/w40/gb.png" alt="English" title="English" />
 
             @auth
-                <span class="user-info">{{ Auth::user()->name }}</span>
-                <form action="{{ route('logout') }}" method="POST" style="display:inline;">
-                    @csrf
-                    <button class="nav-cta" type="submit">Logout</button>
-                </form>
+                <a href="{{ route('admin.destinasi.index') }}" class="admin-link">Admin</a>
             @else
                 <a href="{{ url('/login') }}" style="padding: 8px 16px; color: #333; text-decoration: none; font-size: 14px;">Login</a>
             @endauth
@@ -475,9 +507,9 @@
     <!-- Sidebar Overlay -->
     <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-    <main>
-        @yield('content')
-    </main>
+    @yield('content')
+
+    @yield('scripts')
 
     <script>
         // Mobile Sidebar Functionality
